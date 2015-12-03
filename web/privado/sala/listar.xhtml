@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <ui:composition template="/templates/template.xhtml">
+        <ui:define name="titulo">Manutenção de Salas</ui:define>
+        <ui:define name="conteudo">
+            <h:form id="formListagem" prependId="false">
+                <p:growl/>
+                <p:commandButton actionListener="#{controleSala.novo()}"
+                                 value="Novo"
+                                 oncomplete="PF('dlg').show();" update=":formEdicao"/>
+                <p:dataTable value="#{controleSala.dao.listarTodos}" var="obj">
+                    <f:facet name="header">
+                        <p:outputLabel value="Listagem de Salas"/>
+                    </f:facet>
+                    <f:facet name="footer">
+                        <p:outputLabel value="Total de registros: #{controleSala.dao.listarTodos.size()}"/>
+                    </f:facet>                
+                    <p:column headerText="ID">
+                        <p:outputLabel value="#{obj.id}"/>
+                    </p:column>
+                    <p:column headerText="Nome">
+                        <p:outputLabel value="#{obj.nome}"/>
+                    </p:column>
+                    <p:column headerText="Descrição">
+                        <p:outputLabel value="#{obj.descricao}"/>
+                    </p:column>
+                    <p:column headerText="Capacidade">
+                        <p:outputLabel value="#{obj.quantidade}"/>
+                    </p:column>
+                    <p:column headerText="Funcionário">
+                        <p:outputLabel value="#{obj.funcionario.nome}"/>
+                    </p:column>
+                    <p:column headerText="Ações">
+                        <div align="center">
+                            <p:commandButton icon="ui-icon-pencil"
+                                             actionListener="#{controleSala.editar(obj.id)}"
+                                             oncomplete="PF('dlg').show();"
+                                             update=":formEdicao"
+                                             process="@form" id="btnAlterar"/>
+                            <p:commandButton icon="ui-icon-trash"
+                                             actionListener="#{controleSala.remover(obj.id)}"
+                                             onclick="if (!confirm('Confirma a exclusão do objeto'))
+                                                         return false"
+                                             update=":formListagem" id="btnExcluir"/>
+                        </div>
+                        <p:tooltip for="btnAlterar" value="Alterar"/>
+                        <p:tooltip for="btnExcluir" value="Excluir"/>
+                    </p:column>
+                </p:dataTable>
+            </h:form>            
+        </ui:define>
+        <ui:define name="dialogos">
+            <p:dialog header="Edição" widgetVar="dlg" resizable="false" modal="true">
+                <h:form id="formEdicao" prependId="false">
+                    <p:growl/>
+                    <p:panelGrid columns="2">
+                        <f:facet name="header">
+                            <p:outputLabel value="Edição de Salas"/>
+                        </f:facet>
+                        <f:facet name="footer">
+                            <div align="center">
+                                <p:commandButton value="Salvar" icon="ui-icon-disk"
+                                                 update=":formListagem :formEdicao" 
+                                                 actionListener="#{controleSala.salvar()}"
+                                                 oncomplete="if(!args.validationFailed){PF('dlg').hide();}"/>
+                            </div>
+                        </f:facet>
+                        <p:outputLabel value="ID" for="txtID"/>
+                        <p:inputText value="#{controleSala.objeto.id}" size="5" readonly="true" id="txtID"/>
+                        <p:outputLabel value="Nome" for="txtNome"/>
+                        <p:inputText value="#{controleSala.objeto.nome}" size="20" maxlength="20"
+                                     id="txtNome" placeholder="Obrigatório"/>
+                        <p:outputLabel value="Descrição" for="txtDescricao"/>
+                        <p:inputText value="#{controleSala.objeto.descricao}" size="100" maxlength="100"
+                                     id="txtDescricao" placeholder="Obrigatório"/>
+                        <p:outputLabel value="Capacidade" for="txtQuantidade"/>
+                        <p:inputText value="#{controleSala.objeto.quantidade}" size="10" maxlength="5"
+                                     id="txtQuantidade" placeholder="Obrigatória"/>                                                      
+                        <p:outputLabel value="Funcionário" for="selectFuncionario"/>
+                        <p:selectOneMenu value="#{controleSala.objeto.funcionario}"
+                                         id="selectFuncionario">
+                            <f:converter converterId="converterFuncionario"/>
+                            <f:selectItems value="#{controleSala.daoFuncionario.listarTodos}" 
+                                           var="f"
+                                           itemLabel="#{f.nome}"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                </h:form>
+                <ui:include src="/templates/ajaxstatus.xhtml"/>
+            </p:dialog>            
+        </ui:define>
+    </ui:composition>
+
+</html>
+

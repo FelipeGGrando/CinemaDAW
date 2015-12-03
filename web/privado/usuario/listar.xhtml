@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <ui:composition template="/templates/template.xhtml">
+        <ui:define name="titulo">Manutenção de Usuarios</ui:define>
+        <ui:define name="conteudo">
+            <h:form id="formListagem" prependId="false">
+                <p:growl/>
+                <p:commandButton actionListener="#{controleUsuario.novo()}"
+                                 value="Novo"
+                                 oncomplete="PF('dlg').show();" update=":formEdicao"/>
+                <p:dataTable value="#{controleUsuario.dao.listarTodos}" var="obj">
+                    <f:facet name="header">
+                        <p:outputLabel value="Listagem de Usuarios"/>
+                    </f:facet>
+                    <f:facet name="footer">
+                        <p:outputLabel value="Total de Registros: #{controleUsuario.dao.listarTodos.size()}"/>
+                    </f:facet>                
+                    <p:column headerText="ID">
+                        <p:outputLabel value="#{obj.id}"/>
+                    </p:column>
+                    <p:column headerText="Apelido">
+                        <p:outputLabel value="#{obj.apelido}"/>
+                    </p:column>
+                    <p:column headerText="Senha">
+                        <p:outputLabel value="#{obj.senha}"/>
+                    </p:column>
+                    <p:column headerText="Admnistrador">
+                        <p:outputLabel value="#{obj.administrador}" >
+                            <f:converter converterId="converterBoolean"/>
+                        </p:outputLabel>
+                    </p:column>
+                    <p:column headerText="Ativo">
+                        <p:outputLabel value="#{obj.ativo}" >
+                            <f:converter converterId="converterBoolean"/>
+                        </p:outputLabel>
+                    </p:column>
+                    <p:column headerText="Ações">
+                        <div align="center">
+                            <p:commandButton icon="ui-icon-pencil"
+                                             actionListener="#{controleUsuario.editar(obj.id)}"
+                                             oncomplete="PF('dlg').show();"
+                                             update=":formEdicao"
+                                             process="@form" id="btnAlterar"/>
+                            <p:commandButton icon="ui-icon-trash"
+                                             actionListener="#{controleUsuario.remover(obj.id)}"
+                                             onclick="if (!confirm('Confirma a exclusão do objeto'))
+                                                         return false"
+                                             update=":formListagem" id="btnExcluir"/>
+                        </div>
+                        <p:tooltip for="btnAlterar" value="Alterar"/>
+                        <p:tooltip for="btnExcluir" value="Excluir"/>
+                    </p:column>
+                </p:dataTable>
+            </h:form>            
+        </ui:define>
+        <ui:define name="dialogos">
+            <p:dialog header="Edição" widgetVar="dlg" resizable="false" modal="true">
+                <h:form id="formEdicao" prependId="false">
+                    <p:growl id="growl"/>
+                        <p:panelGrid columns="2">
+                            <f:facet name="header">
+                                <p:outputLabel value="Edição de Usuarios"/>
+                            </f:facet>
+                            <f:facet name="footer">
+                                <div align="center">
+                                    <p:commandButton value="Salvar" icon="ui-icon-disk"
+                                                     update=":formListagem :formEdicao" 
+                                                     actionListener="#{controleUsuario.salvar()}"
+                                                     oncomplete="if(!args.validationFailed){PF('dlg').hide();}"/>
+                                </div>
+                            </f:facet>
+                            <p:outputLabel value="ID" for="txtID"/>
+                            <p:inputText value="#{controleUsuario.objeto.id}" size="5" readonly="true" id="txtID"/>
+                            <p:outputLabel value="Apelido" for="txtApelido"/>
+                            <p:inputText value="#{controleUsuario.objeto.apelido}" size="20" maxlength="20"
+                                         id="txtApelido" placeholder="Obrigatório"/> 
+                            <p:outputLabel value="Senha" for="txtSenha"/>
+                            <p:inputText value="#{controleUsuario.objeto.senha}" size="20" maxlength="20"
+                                         id="txtSenha" placeholder="Obrigatório"/>
+                            <p:outputLabel value="Admnistrador" for="txtAdmnistrador"/>
+                            <p:selectOneMenu value="#{controleUsuario.objeto.administrador}" required="true" id="txtAdmnistrador">
+                                <f:selectItem  itemValue="true"  itemLabel="Sim"/>
+                                <f:selectItem  itemValue="false" itemLabel="Não"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Ativo" for="txtAtivo"/>
+                            <p:selectOneMenu value="#{controleUsuario.objeto.ativo}" required="true" id="txtAtivo">
+                                <f:selectItem  itemValue="true"  itemLabel="Sim"/>
+                                <f:selectItem  itemValue="false" itemLabel="Não"/>
+                            </p:selectOneMenu>
+                        </p:panelGrid>
+                </h:form>
+                <ui:include src="/templates/ajaxstatus.xhtml"/>
+            </p:dialog>            
+        </ui:define>
+    </ui:composition>
+</html>
